@@ -1,0 +1,1215 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Осевая и вращательная симметрия</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            border: none;
+            background: none;
+            font-size: 1.1em;
+        }
+
+        .tab:hover {
+            background: #e9ecef;
+        }
+
+        .tab.active {
+            background: white;
+            color: #667eea;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .theory-block {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            border-left: 5px solid #667eea;
+        }
+
+        .theory-block h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.4em;
+        }
+
+        .theory-block p {
+            line-height: 1.8;
+            color: #495057;
+            margin-bottom: 10px;
+        }
+
+        .example-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .example-item {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .example-item svg {
+            width: 100%;
+            height: 120px;
+            margin-bottom: 10px;
+        }
+
+        .exercise {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+        }
+
+        .exercise h4 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .question {
+            margin-bottom: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .question p {
+            margin-bottom: 15px;
+            font-weight: 500;
+            color: #212529;
+        }
+
+        .options {
+            display: grid;
+            gap: 10px;
+        }
+
+        .option {
+            padding: 15px;
+            background: white;
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .option:hover {
+            border-color: #667eea;
+            transform: translateX(5px);
+        }
+
+        .option.selected {
+            border-color: #667eea;
+            background: #e7eaf6;
+        }
+
+        .option.correct {
+            border-color: #28a745;
+            background: #d4edda;
+        }
+
+        .option.incorrect {
+            border-color: #dc3545;
+            background: #f8d7da;
+        }
+
+        .canvas-container {
+            background: white;
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        canvas {
+            border: 1px solid #dee2e6;
+            cursor: crosshair;
+            display: block;
+            margin: 0 auto;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 10px 5px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+
+        .result.success {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #28a745;
+        }
+
+        .result.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 2px solid #dc3545;
+        }
+
+        .progress {
+            background: #e9ecef;
+            height: 8px;
+            border-radius: 10px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            height: 100%;
+            transition: width 0.5s;
+            border-radius: 10px;
+        }
+
+        .score {
+            text-align: center;
+            font-size: 1.5em;
+            color: #667eea;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+
+        .figure-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .figure-option {
+            background: white;
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .figure-option:hover {
+            border-color: #667eea;
+            transform: scale(1.05);
+        }
+
+        .figure-option.selected {
+            border-color: #667eea;
+            background: #e7eaf6;
+        }
+
+        .figure-option svg {
+            width: 100%;
+            height: 100px;
+        }
+
+        input[type="number"] {
+            padding: 10px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 1em;
+            width: 100px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📐 Осевая и вращательная симметрия</h1>
+            <p>Интерактивный урок математики</p>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('theory')">📚 Теория</button>
+            <button class="tab" onclick="switchTab('practice')">✏️ Практика</button>
+            <button class="tab" onclick="switchTab('test')">🎯 Тест</button>
+        </div>
+
+        <div class="content">
+            <!-- ТЕОРИЯ -->
+            <div id="theory" class="section active">
+                <div class="theory-block">
+                    <h3>🔍 Что такое симметрия?</h3>
+                    <p>Фигура имеет симметрию, если при некотором преобразовании она совпадает сама с собой. Существует два основных вида симметрии: осевая и вращательная.</p>
+                </div>
+
+                <div class="theory-block">
+                    <h3>↔️ Осевая симметрия</h3>
+                    <p><strong>Линия симметрии</strong> (или <strong>ось симметрии</strong>) — это линия, относительно которой фигура делится на две одинаковые части.</p>
+                    <p>Если согнуть фигуру по линии симметрии, обе половины точно совпадут.</p>
+                    
+                    <div class="example-grid">
+                        <div class="example-item">
+                            <svg viewBox="0 0 100 100">
+                                <line x1="50" y1="10" x2="50" y2="90" stroke="#667eea" stroke-width="2" stroke-dasharray="5,5"/>
+                                <circle cx="50" cy="50" r="30" fill="none" stroke="#764ba2" stroke-width="3"/>
+                            </svg>
+                            <p><strong>Круг</strong><br>Бесконечно линий</p>
+                        </div>
+                        <div class="example-item">
+                            <svg viewBox="0 0 100 100">
+                                <line x1="50" y1="10" x2="50" y2="90" stroke="#667eea" stroke-width="2" stroke-dasharray="5,5"/>
+                                <rect x="30" y="30" width="40" height="40" fill="none" stroke="#764ba2" stroke-width="3"/>
+                            </svg>
+                            <p><strong>Квадрат</strong><br>4 линии</p>
+                        </div>
+                        <div class="example-item">
+                            <svg viewBox="0 0 100 100">
+                                <line x1="50" y1="20" x2="50" y2="80" stroke="#667eea" stroke-width="2" stroke-dasharray="5,5"/>
+                                <polygon points="50,20 80,50 50,80 20,50" fill="none" stroke="#764ba2" stroke-width="3"/>
+                            </svg>
+                            <p><strong>Ромб</strong><br>2 линии</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="theory-block">
+                    <h3>🔄 Вращательная симметрия</h3>
+                    <p>Фигура имеет <strong>вращательную симметрию</strong>, если при повороте на некоторый угол вокруг центра она совпадает сама с собой.</p>
+                    <p><strong>Порядок вращательной симметрии</strong> — это количество раз, которое фигура совпадает сама с собой при полном обороте на 360°.</p>
+                    
+                    <div class="example-grid">
+                        <div class="example-item">
+                            <svg viewBox="0 0 100 100">
+                                <polygon points="50,20 65,45 90,45 70,60 80,85 50,70 20,85 30,60 10,45 35,45" fill="#764ba2" opacity="0.3" stroke="#764ba2" stroke-width="2"/>
+                                <circle cx="50" cy="50" r="3" fill="#667eea"/>
+                            </svg>
+                            <p><strong>Звезда</strong><br>Порядок 5</p>
+                        </div>
+                        <div class="example-item">
+                            <svg viewBox="0 0 100 100">
+                                <rect x="30" y="30" width="40" height="40" fill="#764ba2" opacity="0.3" stroke="#764ba2" stroke-width="2"/>
+                                <circle cx="50" cy="50" r="3" fill="#667eea"/>
+                            </svg>
+                            <p><strong>Квадрат</strong><br>Порядок 4</p>
+                        </div>
+                        <div class="example-item">
+                            <svg viewBox="0 0 100 100">
+                                <polygon points="50,20 75,70 25,70" fill="#764ba2" opacity="0.3" stroke="#764ba2" stroke-width="2"/>
+                                <circle cx="50" cy="50" r="3" fill="#667eea"/>
+                            </svg>
+                            <p><strong>Треугольник</strong><br>Порядок 3</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="theory-block">
+                    <h3>💡 Важно помнить!</h3>
+                    <p>• Фигура может иметь и осевую, и вращательную симметрию одновременно</p>
+                    <p>• Если фигура имеет N линий симметрии, то порядок вращательной симметрии тоже равен N</p>
+                    <p>• Круг имеет бесконечное количество линий симметрии и бесконечный порядок вращательной симметрии</p>
+                </div>
+            </div>
+
+            <!-- ПРАКТИКА -->
+            <div id="practice" class="section">
+                <h2 style="color: #667eea; margin-bottom: 20px;">Практические задания</h2>
+
+                <div class="exercise">
+                    <h4>Задание 1: Определите количество линий симметрии</h4>
+                    <div class="question">
+                        <p>Укажите количество линий симметрии для каждой фигуры:</p>
+                        
+                        <div class="figure-grid">
+                            <div class="figure-option">
+                                <svg viewBox="0 0 100 100">
+                                    <polygon points="50,15 90,85 10,85" fill="#764ba2" opacity="0.3" stroke="#764ba2" stroke-width="2"/>
+                                </svg>
+                                <p>Равносторонний<br>треугольник</p>
+                                <input type="number" id="fig1" min="0" max="10" placeholder="?">
+                            </div>
+                            <div class="figure-option">
+                                <svg viewBox="0 0 100 100">
+                                    <rect x="25" y="35" width="50" height="30" fill="#764ba2" opacity="0.3" stroke="#764ba2" stroke-width="2"/>
+                                </svg>
+                                <p>Прямоугольник<br>(не квадрат)</p>
+                                <input type="number" id="fig2" min="0" max="10" placeholder="?">
+                            </div>
+                            <div class="figure-option">
+                                <svg viewBox="0 0 100 100">
+                                    <polygon points="50,15 70,40 90,40 70,55 75,80 50,65 25,80 30,55 10,40 30,40" fill="#764ba2" opacity="0.3" stroke="#764ba2" stroke-width="2"/>
+                                </svg>
+                                <p>Пятиконечная<br>звезда</p>
+                                <input type="number" id="fig3" min="0" max="10" placeholder="?">
+                            </div>
+                        </div>
+                        
+                        <button class="btn" onclick="checkTask1()">Проверить</button>
+                        <div id="result1"></div>
+                    </div>
+                </div>
+
+                <div class="exercise">
+                    <h4>Задание 2: Определите порядок вращательной симметрии</h4>
+                    <div class="question">
+                        <p>Какой порядок вращательной симметрии у этих фигур?</p>
+                        
+                        <div class="figure-grid">
+                            <div class="figure-option">
+                                <svg viewBox="0 0 100 100">
+                                    <polygon points="50,20 65,40 85,40 70,52 75,70 50,58 25,70 30,52 15,40 35,40" fill="#667eea" opacity="0.3" stroke="#667eea" stroke-width="2"/>
+                                </svg>
+                                <p>Звезда</p>
+                                <input type="number" id="rot1" min="1" max="12" placeholder="?">
+                            </div>
+                            <div class="figure-option">
+                                <svg viewBox="0 0 100 100">
+                                    <polygon points="50,20 80,80 20,80" fill="#667eea" opacity="0.3" stroke="#667eea" stroke-width="2"/>
+                                </svg>
+                                <p>Равносторонний<br>треугольник</p>
+                                <input type="number" id="rot2" min="1" max="12" placeholder="?">
+                            </div>
+                            <div class="figure-option">
+                                <svg viewBox="0 0 100 100">
+                                    <polygon points="50,15 85,50 50,85 15,50" fill="#667eea" opacity="0.3" stroke="#667eea" stroke-width="2"/>
+                                </svg>
+                                <p>Ромб</p>
+                                <input type="number" id="rot3" min="1" max="12" placeholder="?">
+                            </div>
+                        </div>
+                        
+                        <button class="btn" onclick="checkTask2()">Проверить</button>
+                        <div id="result2"></div>
+                    </div>
+                </div>
+
+                <div class="exercise">
+                    <h4>Задание 3: Найдите линии симметрии</h4>
+                    <div class="question">
+                        <p>Нарисуйте все линии симметрии на фигурах ниже. Сколько линий у каждой?</p>
+                        
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin: 20px 0;">
+                            <div style="text-align: center;">
+                                <svg viewBox="0 0 200 200" style="width: 100%; height: 200px; background: white; border: 2px solid #dee2e6; border-radius: 10px;">
+                                    <rect x="50" y="50" width="100" height="100" fill="#FFD93D" opacity="0.6" stroke="#764ba2" stroke-width="3"/>
+                                </svg>
+                                <p style="margin-top: 10px;">Квадрат: <input type="number" id="sym1" min="0" max="10" placeholder="?" style="width: 60px;"></p>
+                            </div>
+                            <div style="text-align: center;">
+                                <svg viewBox="0 0 200 200" style="width: 100%; height: 200px; background: white; border: 2px solid #dee2e6; border-radius: 10px;">
+                                    <polygon points="100,30 170,100 100,170 30,100" fill="#6BCB77" opacity="0.6" stroke="#764ba2" stroke-width="3"/>
+                                </svg>
+                                <p style="margin-top: 10px;">Ромб: <input type="number" id="sym2" min="0" max="10" placeholder="?" style="width: 60px;"></p>
+                            </div>
+                            <div style="text-align: center;">
+                                <svg viewBox="0 0 200 200" style="width: 100%; height: 200px; background: white; border: 2px solid #dee2e6; border-radius: 10px;">
+                                    <polygon points="100,30 170,170 30,170" fill="#FF6B6B" opacity="0.6" stroke="#764ba2" stroke-width="3"/>
+                                </svg>
+                                <p style="margin-top: 10px;">Равнобедренный треугольник: <input type="number" id="sym3" min="0" max="10" placeholder="?" style="width: 60px;"></p>
+                            </div>
+                            <div style="text-align: center;">
+                                <svg viewBox="0 0 200 200" style="width: 100%; height: 200px; background: white; border: 2px solid #dee2e6; border-radius: 10px;">
+                                    <polygon points="100,40 130,80 170,80 140,110 155,150 100,120 45,150 60,110 30,80 70,80" fill="#4ECDC4" opacity="0.6" stroke="#764ba2" stroke-width="3"/>
+                                </svg>
+                                <p style="margin-top: 10px;">Звезда (5 лучей): <input type="number" id="sym4" min="0" max="10" placeholder="?" style="width: 60px;"></p>
+                            </div>
+                        </div>
+                        
+                        <button class="btn" onclick="checkTask3()">Проверить</button>
+                        <div id="result3"></div>
+                    </div>
+                </div>
+
+                <div class="exercise">
+                    <h4>Задание 4: Симметричные буквы</h4>
+                    <div class="question">
+                        <p>Определите, какие из этих букв имеют осевую симметрию. Отметьте их!</p>
+                        
+                        <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; margin: 20px 0;">
+                            <div class="figure-option" onclick="toggleLetter(1)" id="letter1">
+                                <svg viewBox="0 0 100 100">
+                                    <text x="50" y="70" font-size="60" font-weight="bold" fill="#667eea" text-anchor="middle">A</text>
+                                </svg>
+                            </div>
+                            <div class="figure-option" onclick="toggleLetter(2)" id="letter2">
+                                <svg viewBox="0 0 100 100">
+                                    <text x="50" y="70" font-size="60" font-weight="bold" fill="#667eea" text-anchor="middle">B</text>
+                                </svg>
+                            </div>
+                            <div class="figure-option" onclick="toggleLetter(3)" id="letter3">
+                                <svg viewBox="0 0 100 100">
+                                    <text x="50" y="70" font-size="60" font-weight="bold" fill="#667eea" text-anchor="middle">H</text>
+                                </svg>
+                            </div>
+                            <div class="figure-option" onclick="toggleLetter(4)" id="letter4">
+                                <svg viewBox="0 0 100 100">
+                                    <text x="50" y="70" font-size="60" font-weight="bold" fill="#667eea" text-anchor="middle">M</text>
+                                </svg>
+                            </div>
+                            <div class="figure-option" onclick="toggleLetter(5)" id="letter5">
+                                <svg viewBox="0 0 100 100">
+                                    <text x="50" y="70" font-size="60" font-weight="bold" fill="#667eea" text-anchor="middle">O</text>
+                                </svg>
+                            </div>
+                            <div class="figure-option" onclick="toggleLetter(6)" id="letter6">
+                                <svg viewBox="0 0 100 100">
+                                    <text x="50" y="70" font-size="60" font-weight="bold" fill="#667eea" text-anchor="middle">T</text>
+                                </svg>
+                            </div>
+                            <div class="figure-option" onclick="toggleLetter(7)" id="letter7">
+                                <svg viewBox="0 0 100 100">
+                                    <text x="50" y="70" font-size="60" font-weight="bold" fill="#667eea" text-anchor="middle">X</text>
+                                </svg>
+                            </div>
+                            <div class="figure-option" onclick="toggleLetter(8)" id="letter8">
+                                <svg viewBox="0 0 100 100">
+                                    <text x="50" y="70" font-size="60" font-weight="bold" fill="#667eea" text-anchor="middle">Y</text>
+                                </svg>
+                            </div>
+                            <div class="figure-option" onclick="toggleLetter(9)" id="letter9">
+                                <svg viewBox="0 0 100 100">
+                                    <text x="50" y="70" font-size="60" font-weight="bold" fill="#667eea" text-anchor="middle">Z</text>
+                                </svg>
+                            </div>
+                            <div class="figure-option" onclick="toggleLetter(10)" id="letter10">
+                                <svg viewBox="0 0 100 100">
+                                    <text x="50" y="70" font-size="60" font-weight="bold" fill="#667eea" text-anchor="middle">F</text>
+                                </svg>
+                            </div>
+                        </div>
+                        
+                        <button class="btn" onclick="checkTask4()">Проверить</button>
+                        <div id="result4"></div>
+                    </div>
+                </div>
+
+                <div class="exercise">
+                    <h4>Задание 5: Найдите фигуры с одинаковой симметрией</h4>
+                    <div class="question">
+                        <p>Сгруппируйте фигуры по порядку вращательной симметрии (нажмите на фигуры с одинаковым порядком):</p>
+                        
+                        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin: 20px 0;">
+                            <div class="figure-option" onclick="selectGroup(1)" id="group1">
+                                <svg viewBox="0 0 100 100">
+                                    <polygon points="50,20 80,80 20,80" fill="#E63946" opacity="0.5" stroke="#764ba2" stroke-width="2"/>
+                                </svg>
+                                <p>Треугольник</p>
+                            </div>
+                            <div class="figure-option" onclick="selectGroup(2)" id="group2">
+                                <svg viewBox="0 0 100 100">
+                                    <rect x="30" y="30" width="40" height="40" fill="#F4A261" opacity="0.5" stroke="#764ba2" stroke-width="2"/>
+                                </svg>
+                                <p>Квадрат</p>
+                            </div>
+                            <div class="figure-option" onclick="selectGroup(3)" id="group3">
+                                <svg viewBox="0 0 100 100">
+                                    <polygon points="50,20 70,40 70,60 50,80 30,60 30,40" fill="#2A9D8F" opacity="0.5" stroke="#764ba2" stroke-width="2"/>
+                                </svg>
+                                <p>Шестиугольник</p>
+                            </div>
+                            <div class="figure-option" onclick="selectGroup(4)" id="group4">
+                                <svg viewBox="0 0 100 100">
+                                    <path d="M 50,30 Q 30,30 30,50 Q 30,70 50,70 Q 70,70 70,50 Q 70,30 50,30 M 50,40 Q 60,40 60,50 Q 60,60 50,60 Q 40,60 40,50 Q 40,40 50,40" fill="#E76F51" opacity="0.5" stroke="#764ba2" stroke-width="2"/>
+                                </svg>
+                                <p>Восьмёрка</p>
+                            </div>
+                            <div class="figure-option" onclick="selectGroup(5)" id="group5">
+                                <svg viewBox="0 0 100 100">
+                                    <polygon points="50,15 70,40 90,40 70,55 75,80 50,65 25,80 30,55 10,40 30,40" fill="#457B9D" opacity="0.5" stroke="#764ba2" stroke-width="2"/>
+                                </svg>
+                                <p>Звезда 5</p>
+                            </div>
+                            <div class="figure-option" onclick="selectGroup(6)" id="group6">
+                                <svg viewBox="0 0 100 100">
+                                    <circle cx="50" cy="50" r="25" fill="#A8DADC" opacity="0.5" stroke="#764ba2" stroke-width="2"/>
+                                </svg>
+                                <p>Круг</p>
+                            </div>
+                            <div class="figure-option" onclick="selectGroup(7)" id="group7">
+                                <svg viewBox="0 0 100 100">
+                                    <polygon points="50,25 65,35 75,25 85,35 85,50 75,60 85,70 75,80 60,80 50,70 40,80 25,80 15,70 25,60 15,50 15,35 25,25 35,35" fill="#F1FAEE" opacity="0.5" stroke="#764ba2" stroke-width="2"/>
+                                </svg>
+                                <p>Снежинка 8</p>
+                            </div>
+                            <div class="figure-option" onclick="selectGroup(8)" id="group8">
+                                <svg viewBox="0 0 100 100">
+                                    <polygon points="50,20 60,45 85,45 65,60 72,85 50,68 28,85 35,60 15,45 40,45" fill="#FFB703" opacity="0.5" stroke="#764ba2" stroke-width="2"/>
+                                </svg>
+                                <p>Звезда 5</p>
+                            </div>
+                        </div>
+                        
+                        <p style="margin-top: 10px; color: #6c757d; font-size: 0.9em;">💡 Подсказка: Треугольник и обе пятиконечные звезды имеют одинаковый порядок!</p>
+                        <button class="btn" onclick="checkTask5()">Проверить</button>
+                        <div id="result5"></div>
+                    </div>
+                </div>
+
+                <div class="exercise">
+                    <h4>Задание 6: Рисование симметричных фигур</h4>
+                    <div class="question">
+                        <p>Дорисуйте фигуру симметрично относительно вертикальной линии:</p>
+                        
+                        <div class="canvas-container">
+                            <canvas id="drawCanvas" width="400" height="300"></canvas>
+                        </div>
+                        
+                        <button class="btn" onclick="resetCanvas()">Очистить</button>
+                        <button class="btn btn-secondary" onclick="showSolution()">Показать решение</button>
+                        <div id="result6"></div>
+                    </div>
+                </div>
+
+                <div class="exercise">
+                    <h4>Задание 7: Создайте свою фигуру</h4>
+                    <div class="question">
+                        <p>Используйте генератор, чтобы создать фигуру с заданными параметрами:</p>
+                        
+                        <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin: 20px 0;">
+                            <label style="display: block; margin-bottom: 10px;">
+                                <strong>Количество сторон:</strong>
+                                <input type="range" id="sides" min="3" max="12" value="6" oninput="generateShape()">
+                                <span id="sidesValue">6</span>
+                            </label>
+                            
+                            <label style="display: block; margin-bottom: 10px;">
+                                <strong>Размер:</strong>
+                                <input type="range" id="size" min="30" max="80" value="60" oninput="generateShape()">
+                                <span id="sizeValue">60</span>
+                            </label>
+                            
+                            <label style="display: block; margin-bottom: 10px;">
+                                <strong>Цвет:</strong>
+                                <select id="color" onchange="generateShape()" style="padding: 5px; border-radius: 5px; border: 2px solid #dee2e6;">
+                                    <option value="#667eea">Фиолетовый</option>
+                                    <option value="#FF6B6B">Красный</option>
+                                    <option value="#4ECDC4">Бирюзовый</option>
+                                    <option value="#FFD93D">Жёлтый</option>
+                                    <option value="#6BCB77">Зелёный</option>
+                                </select>
+                            </label>
+                        </div>
+                        
+                        <svg id="generatedShape" viewBox="0 0 200 200" style="width: 100%; max-width: 300px; height: 300px; background: white; border: 2px solid #dee2e6; border-radius: 10px; display: block; margin: 0 auto;"></svg>
+                        
+                        <div style="text-align: center; margin-top: 20px;">
+                            <p style="font-size: 1.1em; color: #667eea;">
+                                <strong>Порядок вращательной симметрии: <span id="orderDisplay">6</span></strong>
+                            </p>
+                            <p style="font-size: 1.1em; color: #667eea;">
+                                <strong>Количество линий симметрии: <span id="linesDisplay">6</span></strong>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="exercise">
+                    <h4>Задание 8: Найди лишнюю фигуру</h4>
+                    <div class="question">
+                        <p>Какая фигура не имеет вращательной симметрии? Нажмите на неё!</p>
+                        
+                        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin: 20px 0;">
+                            <div class="figure-option" onclick="selectOdd(1)" id="odd1">
+                                <svg viewBox="0 0 100 100">
+                                    <polygon points="50,20 80,80 20,80" fill="#667eea" opacity="0.4" stroke="#764ba2" stroke-width="2"/>
+                                </svg>
+                                <p>Равносторонний<br>треугольник</p>
+                            </div>
+                            <div class="figure-option" onclick="selectOdd(2)" id="odd2">
+                                <svg viewBox="0 0 100 100">
+                                    <polygon points="50,30 70,50 50,70 30,50" fill="#667eea" opacity="0.4" stroke="#764ba2" stroke-width="2"/>
+                                </svg>
+                                <p>Ромб</p>
+                            </div>
+                            <div class="figure-option" onclick="selectOdd(3)" id="odd3">
+                                <svg viewBox="0 0 100 100">
+                                    <polygon points="50,20 70,70 50,60 30,70" fill="#667eea" opacity="0.4" stroke="#764ba2" stroke-width="2"/>
+                                </svg>
+                                <p>Равнобедренный<br>треугольник</p>
+                            </div>
+                            <div class="figure-option" onclick="selectOdd(4)" id="odd4">
+                                <svg viewBox="0 0 100 100">
+                                    <rect x="30" y="30" width="40" height="40" fill="#667eea" opacity="0.4" stroke="#764ba2" stroke-width="2"/>
+                                </svg>
+                                <p>Квадрат</p>
+                            </div>
+                        </div>
+                        
+                        <button class="btn" onclick="checkTask8()">Проверить</button>
+                        <div id="result8"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ТЕСТ -->
+            <div id="test" class="section">
+                <h2 style="color: #667eea; margin-bottom: 20px;">Итоговый тест</h2>
+                <div class="score" id="score">Правильных ответов: 0/5</div>
+                <div class="progress">
+                    <div class="progress-bar" id="progressBar" style="width: 0%"></div>
+                </div>
+
+                <div class="exercise">
+                    <h4>Вопрос 1</h4>
+                    <div class="question">
+                        <p>Какая из букв латинского алфавита имеет ровно 2 линии симметрии?</p>
+                        <div class="options">
+                            <div class="option" onclick="selectAnswer(1, 1)">A) H</div>
+                            <div class="option" onclick="selectAnswer(1, 2)">B) X</div>
+                            <div class="option" onclick="selectAnswer(1, 3)">C) T</div>
+                            <div class="option" onclick="selectAnswer(1, 4)">D) A</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="exercise">
+                    <h4>Вопрос 2</h4>
+                    <div class="question">
+                        <p>Правильный шестиугольник имеет порядок вращательной симметрии:</p>
+                        <div class="options">
+                            <div class="option" onclick="selectAnswer(2, 1)">A) 3</div>
+                            <div class="option" onclick="selectAnswer(2, 2)">B) 4</div>
+                            <div class="option" onclick="selectAnswer(2, 3)">C) 6</div>
+                            <div class="option" onclick="selectAnswer(2, 4)">D) 12</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="exercise">
+                    <h4>Вопрос 3</h4>
+                    <div class="question">
+                        <p>Какая фигура НЕ имеет вращательной симметрии?</p>
+                        <div class="options">
+                            <div class="option" onclick="selectAnswer(3, 1)">A) Равнобедренный треугольник (не равносторонний)</div>
+                            <div class="option" onclick="selectAnswer(3, 2)">B) Квадрат</div>
+                            <div class="option" onclick="selectAnswer(3, 3)">C) Круг</div>
+                            <div class="option" onclick="selectAnswer(3, 4)">D) Правильный восьмиугольник</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="exercise">
+                    <h4>Вопрос 4</h4>
+                    <div class="question">
+                        <p>Сколько линий симметрии у равнобедренной трапеции?</p>
+                        <div class="options">
+                            <div class="option" onclick="selectAnswer(4, 1)">A) 0</div>
+                            <div class="option" onclick="selectAnswer(4, 2)">B) 1</div>
+                            <div class="option" onclick="selectAnswer(4, 3)">C) 2</div>
+                            <div class="option" onclick="selectAnswer(4, 4)">D) 4</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="exercise">
+                    <h4>Вопрос 5</h4>
+                    <div class="question">
+                        <p>Если фигура имеет 8 линий симметрии, каков ее порядок вращательной симметрии?</p>
+                        <div class="options">
+                            <div class="option" onclick="selectAnswer(5, 1)">A) 4</div>
+                            <div class="option" onclick="selectAnswer(5, 2)">B) 8</div>
+                            <div class="option" onclick="selectAnswer(5, 3)">C) 16</div>
+                            <div class="option" onclick="selectAnswer(5, 4)">D) Бесконечный</div>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn" onclick="checkTest()" style="display: block; margin: 30px auto;">Проверить тест</button>
+                <div id="testResult"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Переключение вкладок
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tab).classList.add('active');
+        }
+
+        // Задание 1
+        function checkTask1() {
+            const answers = {
+                fig1: 3,  // Равносторонний треугольник - 3 линии
+                fig2: 2,  // Прямоугольник - 2 линии
+                fig3: 5   // Пятиконечная звезда - 5 линий
+            };
+
+            let correct = 0;
+            let total = 3;
+
+            for (let key in answers) {
+                const input = document.getElementById(key);
+                const value = parseInt(input.value);
+                if (value === answers[key]) {
+                    correct++;
+                    input.style.borderColor = '#28a745';
+                } else {
+                    input.style.borderColor = '#dc3545';
+                }
+            }
+
+            const result = document.getElementById('result1');
+            if (correct === total) {
+                result.innerHTML = '<div class="result success">✅ Отлично! Все ответы верные!</div>';
+            } else {
+                result.innerHTML = `<div class="result error">❌ Правильно: ${correct} из ${total}. Попробуйте еще раз!</div>`;
+            }
+        }
+
+        // Задание 3 - Линии симметрии
+        function checkTask3() {
+            const answers = {
+                sym1: 4,  // Квадрат - 4 линии
+                sym2: 2,  // Ромб - 2 линии
+                sym3: 1,  // Равнобедренный треугольник - 1 линия
+                sym4: 5   // Звезда 5 лучей - 5 линий
+            };
+
+            let correct = 0;
+            let total = 4;
+
+            for (let key in answers) {
+                const input = document.getElementById(key);
+                const value = parseInt(input.value);
+                if (value === answers[key]) {
+                    correct++;
+                    input.style.borderColor = '#28a745';
+                    input.style.backgroundColor = '#d4edda';
+                } else {
+                    input.style.borderColor = '#dc3545';
+                    input.style.backgroundColor = '#f8d7da';
+                }
+            }
+
+            const result = document.getElementById('result3');
+            if (correct === total) {
+                result.innerHTML = '<div class="result success">🎉 Превосходно! Вы правильно определили все линии симметрии!</div>';
+            } else {
+                result.innerHTML = `<div class="result error">❌ Правильно: ${correct} из ${total}. Подсказка: у квадрата 4 линии (через противоположные углы и середины сторон)!</div>`;
+            }
+        }
+
+        // Задание 4 - Буквы
+        const selectedLetters = new Set();
+        const correctLetters = new Set([1, 3, 5, 6, 7, 8]); // A, H, O, T, X, Y имеют симметрию
+
+        function toggleLetter(num) {
+            const element = document.getElementById(`letter${num}`);
+            if (selectedLetters.has(num)) {
+                selectedLetters.delete(num);
+                element.classList.remove('selected');
+            } else {
+                selectedLetters.add(num);
+                element.classList.add('selected');
+            }
+        }
+
+        function checkTask4() {
+            let correct = 0;
+            let total = 10;
+            let correctCount = 0;
+
+            for (let i = 1; i <= total; i++) {
+                const element = document.getElementById(`letter${i}`);
+                element.classList.remove('correct', 'incorrect');
+                
+                if (correctLetters.has(i) && selectedLetters.has(i)) {
+                    element.classList.add('correct');
+                    correctCount++;
+                } else if (!correctLetters.has(i) && !selectedLetters.has(i)) {
+                    correctCount++;
+                } else if (selectedLetters.has(i)) {
+                    element.classList.add('incorrect');
+                } else if (correctLetters.has(i)) {
+                    element.classList.add('correct');
+                }
+            }
+
+            const result = document.getElementById('result4');
+            if (correctCount === total) {
+                result.innerHTML = '<div class="result success">🌟 Идеально! Вы нашли все симметричные буквы!</div>';
+            } else {
+                result.innerHTML = `<div class="result error">📝 Правильно: ${correctCount} из ${total}. Подсказка: A, H, O, T, X, Y имеют осевую симметрию!</div>`;
+            }
+        }
+
+        // Задание 5 - Группировка
+        const selectedGroups = new Set();
+        const correctGrouping = new Set([1, 5, 8]); // Треугольник, обе звезды - порядок 3 и 5
+
+        function selectGroup(num) {
+            const element = document.getElementById(`group${num}`);
+            if (selectedGroups.has(num)) {
+                selectedGroups.delete(num);
+                element.classList.remove('selected');
+            } else {
+                selectedGroups.add(num);
+                element.classList.add('selected');
+            }
+        }
+
+        function checkTask5() {
+            // Проверяем, выбраны ли фигуры с одинаковым порядком симметрии
+            // Треугольник (3), обе звезды (5, 5) должны быть выбраны вместе
+            const hasTriangle = selectedGroups.has(1);
+            const hasStarA = selectedGroups.has(5);
+            const hasStarB = selectedGroups.has(8);
+
+            const result = document.getElementById('result5');
+            
+            if (hasTriangle && hasStarA && hasStarB && selectedGroups.size === 3) {
+                result.innerHTML = '<div class="result success">🎯 Верно! Треугольник и обе пятиконечные звезды имеют одинаковый порядок симметрии (3 и 5 соответственно)!</div>';
+                [1, 5, 8].forEach(i => {
+                    document.getElementById(`group${i}`).classList.add('correct');
+                });
+            } else {
+                result.innerHTML = '<div class="result error">🤔 Не совсем. Найдите три фигуры, которые связаны. Подумайте о порядке вращательной симметрии!</div>';
+            }
+        }
+
+        // Задание 7 - Генератор фигур
+        function generateShape() {
+            const sides = parseInt(document.getElementById('sides').value);
+            const size = parseInt(document.getElementById('size').value);
+            const color = document.getElementById('color').value;
+            
+            document.getElementById('sidesValue').textContent = sides;
+            document.getElementById('sizeValue').textContent = size;
+            document.getElementById('orderDisplay').textContent = sides;
+            document.getElementById('linesDisplay').textContent = sides;
+            
+            const svg = document.getElementById('generatedShape');
+            const centerX = 100;
+            const centerY = 100;
+            const angleStep = (2 * Math.PI) / sides;
+            
+            let points = '';
+            for (let i = 0; i < sides; i++) {
+                const angle = i * angleStep - Math.PI / 2;
+                const x = centerX + size * Math.cos(angle);
+                const y = centerY + size * Math.sin(angle);
+                points += `${x},${y} `;
+            }
+            
+            svg.innerHTML = `
+                <polygon points="${points}" fill="${color}" opacity="0.5" stroke="#764ba2" stroke-width="3"/>
+                <circle cx="${centerX}" cy="${centerY}" r="3" fill="#667eea"/>
+            `;
+        }
+
+        // Инициализация генератора
+        generateShape();
+
+        // Задание 8 - Найди лишнюю
+        let selectedOdd = null;
+
+        function selectOdd(num) {
+            if (selectedOdd !== null) {
+                document.getElementById(`odd${selectedOdd}`).classList.remove('selected');
+            }
+            selectedOdd = num;
+            document.getElementById(`odd${num}`).classList.add('selected');
+        }
+
+        function checkTask8() {
+            const result = document.getElementById('result8');
+            
+            if (selectedOdd === null) {
+                result.innerHTML = '<div class="result error">⚠️ Выберите фигуру!</div>';
+                return;
+            }
+
+            // Равнобедренный треугольник (3) не имеет вращательной симметрии
+            if (selectedOdd === 3) {
+                document.getElementById('odd3').classList.add('correct');
+                result.innerHTML = '<div class="result success">✅ Правильно! Равнобедренный треугольник (не равносторонний) не имеет вращательной симметрии, у него только осевая симметрия!</div>';
+            } else {
+                document.getElementById(`odd${selectedOdd}`).classList.add('incorrect');
+                document.getElementById('odd3').classList.add('correct');
+                result.innerHTML = '<div class="result error">❌ Неверно. Правильный ответ - равнобедренный треугольник. Он имеет только осевую симметрию!</div>';
+            }
+        }
+
+        // Задание 2
+        function checkTask2() {
+            const answers = {
+                rot1: 5,  // Пятиконечная звезда - порядок 5
+                rot2: 3,  // Равносторонний треугольник - порядок 3
+                rot3: 2   // Ромб - порядок 2
+            };
+
+            let correct = 0;
+            let total = 3;
+
+            for (let key in answers) {
+                const input = document.getElementById(key);
+                const value = parseInt(input.value);
+                if (value === answers[key]) {
+                    correct++;
+                    input.style.borderColor = '#28a745';
+                } else {
+                    input.style.borderColor = '#dc3545';
+                }
+            }
+
+            const result = document.getElementById('result2');
+            if (correct === total) {
+                result.innerHTML = '<div class="result success">✅ Превосходно! Вы правильно определили порядок симметрии!</div>';
+            } else {
+                result.innerHTML = `<div class="result error">❌ Правильно: ${correct} из ${total}. Подсказка: порядок симметрии = количество совпадений при полном обороте.</div>`;
+            }
+        }
+
+        // Рисование на canvas
+        const canvas = document.getElementById('drawCanvas');
+        const ctx = canvas.getContext('2d');
+        let drawing = false;
+
+        // Инициализация canvas
+        function initCanvas() {
+            ctx.fillStyle = '#f8f9fa';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Рисуем ось симметрии
+            ctx.strokeStyle = '#667eea';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([5, 5]);
+            ctx.beginPath();
+            ctx.moveTo(200, 0);
+            ctx.lineTo(200, 300);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // Рисуем половину фигуры (треугольник слева)
+            ctx.fillStyle = '#764ba2';
+            ctx.globalAlpha = 0.5;
+            ctx.beginPath();
+            ctx.moveTo(100, 100);
+            ctx.lineTo(150, 200);
+            ctx.lineTo(100, 200);
+            ctx.closePath();
+            ctx.fill();
+            ctx.globalAlpha = 1;
+        }
+
+        initCanvas();
+
+        canvas.addEventListener('mousedown', startDrawing);
+        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('mouseup', stopDrawing);
+        canvas.addEventListener('mouseout', stopDrawing);
+
+        function startDrawing(e) {
+            drawing = true;
+            draw(e);
+        }
+
+        function draw(e) {
+            if (!drawing) return;
+
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            ctx.fillStyle = '#667eea';
+            ctx.beginPath();
+            ctx.arc(x, y, 3, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        function stopDrawing() {
+            drawing = false;
+        }
+
+        function resetCanvas() {
+            initCanvas();
+            document.getElementById('result6').innerHTML = '';
+        }
+
+        function showSolution() {
+            initCanvas();
+            
+            // Рисуем правильное решение (зеркальное отражение)
+            ctx.fillStyle = '#28a745';
+            ctx.globalAlpha = 0.5;
+            ctx.beginPath();
+            ctx.moveTo(300, 100);
+            ctx.lineTo(250, 200);
+            ctx.lineTo(300, 200);
+            ctx.closePath();
+            ctx.fill();
+            ctx.globalAlpha = 1;
+
+            document.getElementById('result6').innerHTML = '<div class="result success">✅ Это правильное симметричное отражение!</div>';
+        }
+
+        // Тест
+        const testAnswers = {
+            1: 2,  // X имеет 2 линии симметрии
+            2: 3,  // Шестиугольник - порядок 6
+            3: 1,  // Равнобедренный треугольник НЕ имеет вращательной симметрии
+            4: 2,  // Равнобедренная трапеция - 1 линия
+            5: 2   // 8 линий = порядок 8
+        };
+
+        const userAnswers = {};
+        let score = 0;
+
+        function selectAnswer(question, answer) {
+            userAnswers[question] = answer;
+            
+            // Снимаем выделение со всех опций этого вопроса
+            const options = document.querySelectorAll(`.exercise:nth-of-type(${question}) .option`);
+            options.forEach(opt => opt.classList.remove('selected'));
+            
+            // Выделяем выбранную опцию
+            event.target.classList.add('selected');
+            
+            updateProgress();
+        }
+
+        function updateProgress() {
+            const answered = Object.keys(userAnswers).length;
+            const progress = (answered / 5) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+        }
+
+        function checkTest() {
+            if (Object.keys(userAnswers).length < 5) {
+                alert('Пожалуйста, ответьте на все вопросы!');
+                return;
+            }
+
+            score = 0;
+
+            for (let q = 1; q <= 5; q++) {
+                const options = document.querySelectorAll(`.exercise:nth-of-type(${q}) .option`);
+                options.forEach((opt, index) => {
+                    opt.classList.remove('correct', 'incorrect');
+                    if (index + 1 === testAnswers[q]) {
+                        opt.classList.add('correct');
+                    }
+                    if (index + 1 === userAnswers[q] && userAnswers[q] !== testAnswers[q]) {
+                        opt.classList.add('incorrect');
+                    }
+                });
+
+                if (userAnswers[q] === testAnswers[q]) {
+                    score++;
+                }
+            }
+
+            document.getElementById('score').textContent = `Правильных ответов: ${score}/5`;
+            
+            const testResult = document.getElementById('testResult');
+            if (score === 5) {
+                testResult.innerHTML = '<div class="result success">🎉 Идеально! Вы отлично усвоили тему!</div>';
+            } else if (score >= 3) {
+                testResult.innerHTML = `<div class="result success">✅ Хорошо! Правильно: ${score}/5. Продолжайте практиковаться!</div>`;
+            } else {
+                testResult.innerHTML = `<div class="result error">📚 Нужно еще поработать. Правильно: ${score}/5. Повторите теорию!</div>`;
+            }
+        }
+    </script>
+</body>
+</html>
